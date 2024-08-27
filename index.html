@@ -1,25 +1,41 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Repair Logger</title>
-    <script src="js/main.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/3.1.9-1/crypto-js.min.js"></script>
-    <link rel="stylesheet" href="css/styles.css">
-</head>
-<body>
-    <div class="container">
-        <form id="repairForm" onsubmit="return filesubmit()">
-          <label for="model">Model:</label>
-            <input type="text" id="model" name="model" required><br>
-            <label for="repairType">Repair:</label>
-            <input type="text" id="repairType" name="repairType" required><br>
-            <label for="price">Price:</label>
-            <input type="text" id="price" name="price" required><br>
-            <button type="submit">Submit</button>
-        </form>
-        <textarea placeholder="Additional notes..." readonly></textarea>
-    </div>
-</body>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Product Tracker</title>
+  </head>
+  <body>
+    <h1>Product Tracker</h1>
+    <form action="/add-product" method="POST">
+      <label for="model">Model:</label>
+      <input type="text" id="model" name="model" required /><br /><br />
+      <label for="price">Price:</label>
+      <input type="number" id="price" name="price" required /><br /><br />
+      <button type="submit">Add Product</button>
+    </form>
+
+    <h2>Product List</h2>
+    <pre id="productList"></pre>
+
+    <script>
+      // Client-side JavaScript does not need 'require'.
+      // Instead, just fetch the data as follows:
+
+      // Fetch the product list from the server
+      fetch("/products.txt") // Adjusted to request from server, not file://
+        .then((response) => {
+          if (!response.ok) {
+            throw new Error("Network response was not ok");
+          }
+          return response.text();
+        })
+        .then((data) => {
+          document.getElementById("productList").textContent = data;
+        })
+        .catch((err) => {
+          console.error("Error fetching product list:", err);
+        });
+    </script>
+  </body>
 </html>
