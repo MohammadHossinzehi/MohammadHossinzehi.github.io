@@ -1,4 +1,3 @@
-const cors = require("cors"); // Importing cors module
 const express = require("express");
 const bodyParser = require("body-parser");
 const fs = require("fs");
