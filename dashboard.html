@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Repair Logger</title>
+    <script src="js/main.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/3.1.9-1/crypto-js.min.js"></script>
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+    <div class="container">
+        <form id="repairForm" onsubmit="return filesubmit()">
+          <label for="model">Model:</label>
+            <input type="text" id="model" name="model" required><br>
+            <label for="repairType">Repair:</label>
+            <input type="text" id="repairType" name="repairType" required><br>
+            <label for="price">Price:</label>
+            <input type="text" id="price" name="price" required><br>
+            <button type="submit">Submit</button>
+        </form>
+        <textarea placeholder="Additional notes..." readonly></textarea>
+    </div>
+</body>
+</html>
