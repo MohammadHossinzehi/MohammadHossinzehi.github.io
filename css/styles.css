@@ -1,73 +1,117 @@
+/* Apply the font from Google Fonts */
 body {
-    font-family: Arial, sans-serif;
-    background-color: #f0f0f0;
-    color: #333;
-    margin: 0;
-    padding: 0;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 100vh;
+  font-family: "Roboto", sans-serif;
+  margin: 20px;
+  background-color: #f4f4f9; /* Light background color */
+  color: #333; /* Dark text color */
 }
 h1 {
-    color: #4CAF50;
-    text-align: center;
-    width: 100%;
+  color: #333;
+  font-size: 3em;
+  text-align: center;
+  margin-bottom: 20px;
+}
+h2 {
+  color: #333;
+  font-size: 30px;
+  text-align: center;
+  margin-bottom: 20px;
 }
 .container {
-    display: flex;
-    align-items: flex-start;
-    background-color: #fff;
-    padding: 20px;
-    border-radius: 8px;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-    width: 1000px;
-    height: 500px;
+  display: flex;
+  justify-content: space-between;
+  gap: 20px; /* Space between form and table */
+  height: 600px;
+}
+.form-container,
+.table-container {
+  flex: 1; /* Allows both containers to grow equally */
+}
+.form-container {
+  margin-right: 200px;
+  margin-top: 50px; /* Move form container up by 100px */
 }
 form {
-    flex: 1;
-    margin-right: 20px;
+  background: #ffffff; /* White background for form */
+  padding: 20px;
+  margin-bottom: auto;
+  margin-left: auto;
+  margin-right: auto;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Subtle shadow */
+  width: 400px;
 }
 label {
-    display: block;
-    margin-bottom: 8px;
-    font-weight: bold;
-    color: #4CAF50;
-    text-align: left;
+  display: block;
+  margin-bottom: 5px;
+  font-weight: 600; /* Slightly bold labels */
+  color: #555; /* Lighter color for labels */
 }
-input[type="text"]
-{
-    width: 100%;
-    padding: 8px;
-    margin-bottom: 15px;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-    text-align: left;
-}
-textarea {
-    width: 500px;
-    height: 400px;
-    padding: 8px;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-    background-color: #e0e0e0;
-    color: #888;
-    resize: none;
-}
-textarea[readonly] {
-    background-color: #e0e0e0;
-    cursor: not-allowed;
-}
+input,
 button {
-    width: 100%;
-    padding: 10px;
-    background-color: #4CAF50;
-    color: #fff;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-    font-size: 16px;
+  font-family: "Roboto", sans-serif;
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  margin-bottom: 10px;
+  font-size: 1em;
+  box-sizing: border-box;
+}
+input {
+  width: calc(100% - 22px); /* Adjust width for padding and border */
+}
+.submit {
+  width: 100%;
+  background-color: #007bff; /* Primary blue color */
+  color: #ffffff; /* White text */
+  border: none;
+  cursor: pointer;
+  font-size: 1em;
+  transition: background-color 0.3s ease;
 }
 button:hover {
-    background-color: #45a049;
+  background-color: #0056b3; /* Darker blue on hover */
+}
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 100px;
+  margin-left: -200px; /* Move table to the left by 200px */
+}
+th,
+td {
+  padding: 10px;
+  border: 1px solid #ddd;
+  text-align: left;
+}
+th {
+  background-color: #007bff;
+  color: #ffffff;
+}
+td {
+  background-color: #ffffff;
+  color: #333;
+}
+p.header {
+  font-size: 30px;
+  font-weight: 700; /* Bold font weight */
+  margin-top: 20px; /* Space above the header */
+  margin-bottom: 10px; /* Space below the header */
+  color: #007bff; /* Primary color for header */
+  text-align: center; /* Center-align the header */
+}
+.clear-container {
+  margin-top: -50px; /* Move clear container up by 100px (from 150px to 50px) */
+}
+.clear {
+  width: 100px;
+  height: 40px;
+  background-color: #007bff; /* Primary blue color */
+  color: #ffffff; /* White text */
+  cursor: pointer;
+  font-size: 1em;
+  transition: background-color 0.3s ease;
+}
+.clear:hover {
+  background-color: #0056b3; /* Darker blue on hover */
 }
