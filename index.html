@@ -3,74 +3,234 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Product Submission</title>
+    <title>Product Tracker</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&family=Roboto+Mono:wght@400&display=swap"
+      rel="stylesheet"
+    />
     <style>
+      /* Apply the font from Google Fonts */
       body {
-        font-family: Arial, sans-serif;
-        padding: 20px;
+        font-family: "Roboto", sans-serif;
+        margin: 20px;
+        background-color: #f4f4f9; /* Light background color */
+        color: #333; /* Dark text color */
       }
-      .form-group {
-        margin-bottom: 15px;
+      h1 {
+        color: #333;
+        font-size: 3em;
+        text-align: center;
+        margin-bottom: 20px;
+      }
+      h2 {
+        color: #333;
+        font-size: 30px;
+        text-align: center;
+        margin-bottom: 20px;
+      }
+      .container {
+        display: flex;
+        justify-content: space-between;
+        gap: 20px; /* Space between form and table */
+        height: 600px;
+      }
+      .form-container,
+      .table-container {
+        flex: 1; /* Allows both containers to grow equally */
+        margin-right: 200px;
+      }
+      form {
+        background: #ffffff; /* White background for form */
+        padding: 20px;
+        margin-top: 150px;
+        margin-bottom: auto;
+        margin-left: auto;
+        margin-right: auto;
+        border-radius: 8px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Subtle shadow */
+        width: 400px;
       }
       label {
         display: block;
         margin-bottom: 5px;
+        font-weight: 600; /* Slightly bold labels */
+        color: #555; /* Lighter color for labels */
       }
-      input[type="text"],
-      input[type="number"] {
-        width: 100%;
-        padding: 8px;
+      input,
+      button {
+        font-family: "Roboto", sans-serif;
+        padding: 10px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        margin-bottom: 10px;
+        font-size: 1em;
         box-sizing: border-box;
       }
-      button {
-        padding: 10px 20px;
-        background-color: #007bff;
-        color: white;
+      input {
+        width: calc(100% - 22px); /* Adjust width for padding and border */
+      }
+      .submit {
+        width: 100%;
+        background-color: #007bff; /* Primary blue color */
+        color: #ffffff; /* White text */
         border: none;
         cursor: pointer;
+        font-size: 1em;
+        transition: background-color 0.3s ease;
       }
       button:hover {
-        background-color: #0056b3;
+        background-color: #0056b3; /* Darker blue on hover */
       }
-      #response {
-        margin-top: 20px;
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 100px;
+      }
+      th,
+      td {
+        padding: 10px;
+        border: 1px solid #ddd;
+        text-align: left;
+      }
+      th {
+        background-color: #007bff;
+        color: #ffffff;
+      }
+      td {
+        background-color: #ffffff;
+        color: #333;
+      }
+      p.header {
+        font-size: 30px;
+        font-weight: 700; /* Bold font weight */
+        margin-top: 20px; /* Space above the header */
+        margin-bottom: 10px; /* Space below the header */
+        color: #007bff; /* Primary color for header */
+        text-align: center; /* Center-align the header */
+      }
+      .clear {
+        width: 50px;
+        height: 20px;
+        background-color: #007bff; /* Primary blue color */
+        color: #ffffff; /* White text */
+        cursor: pointer;
+        font-size: 1em;
+        transition: background-color 0.3s ease;
       }
     </style>
   </head>
   <body>
-    <h1>Submit Repair Information</h1>
-    <form id="productForm">
-      <div class="form-group">
-        <label for="repair">Repair:</label>
-        <input type="text" id="repair" name="repair" required />
+    <h1>Repair Shack Quotes</h1>
+    <div class="container">
+      <div class="form-container">
+        <form id="productForm">
+          <label for="model">Model:</label>
+          <input type="text" id="model" name="model" required /><br />
+          <label for="price">Price:</label>
+          <input type="text" id="price" name="price" required /><br />
+          <label for="repair">Repair:</label>
+          <input type="text" id="repair" name="repair" required /><br />
+          <button type="submit" id="submit ">Submit</button>
+        </form>
       </div>
-      <div class="form-group">
-        <label for="model">Model:</label>
-        <input type="text" id="model" name="model" required />
+
+      <div class="table-container">
+        <table id="responseTable">
+          <thead>
+            <tr>
+              <th>Model</th>
+              <th>Repair</th>
+              <th>Price</th>
+              <th>Time</th>
+              <th>Date</th>
+            </tr>
+          </thead>
+          <tbody>
+            <!-- Data will be inserted here -->
+          </tbody>
+        </table>
       </div>
-      <div class="form-group">
-        <label for="price">Price:</label>
-        <input type="number" id="price" name="price" required />
-      </div>
-      <button type="submit">Submit</button>
-    </form>
-    <div id="response"></div>
+    </div>
+    <button type="clear">clear</button>
 
     <script>
+      // Function to format time from 24-hour to 12-hour with AM/PM
+      function formatTime24to12(time24) {
+        const [hours, minutes] = time24.split(":");
+        let hours12 = parseInt(hours, 10);
+        const ampm = hours12 >= 12 ? "PM" : "AM";
+
+        if (hours12 > 12) {
+          hours12 -= 12;
+        } else if (hours12 === 0) {
+          hours12 = 12;
+        }
+
+        return `${hours12}:${minutes} ${ampm}`;
+      }
+
+      // Function to fetch data from the API
+      async function fetchData() {
+        try {
+          const response = await fetch(
+            "https://9j78inyh6g.execute-api.us-east-1.amazonaws.com/dev",
+            {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify({}), // Empty body
+            }
+          );
+
+          const result = await response.json();
+          const body = JSON.parse(result.body);
+          let fileContent = body.fileContent;
+
+          // Split the content into lines and reverse the order
+          const lines = fileContent.split("\n").reverse();
+
+          // Clear the table body
+          const tableBody = document.querySelector("#responseTable tbody");
+          tableBody.innerHTML = "";
+
+          // Populate the table
+          lines.forEach((line) => {
+            if (line.trim()) {
+              // Skip empty lines
+              const [date, model, price, repair] = line.split(",");
+              const [datePart, time24] = date.split(" ");
+              const time12 = formatTime24to12(time24); // Convert to 12-hour time
+              const row = document.createElement("tr");
+              row.innerHTML = `
+                <td>${model}</td>
+                <td>${repair}</td>
+                <td>${price}</td>
+                <td>${time12}</td>
+                <td>${datePart}</td>
+              `;
+              tableBody.appendChild(row);
+            }
+          });
+        } catch (error) {
+          console.error("Error:", error);
+          document.querySelector("#responseTable tbody").innerHTML =
+            "<tr><td colspan='5'>Failed to fetch data</td></tr>";
+        }
+      }
+
+      // Fetch data as soon as the page loads
+      window.onload = fetchData;
+
+      // Form submission handler
       document
         .getElementById("productForm")
         .addEventListener("submit", async (event) => {
           event.preventDefault();
 
-          const repair = document.getElementById("repair").value;
           const model = document.getElementById("model").value;
           const price = document.getElementById("price").value;
-
-          const requestData = {
-            repair,
-            model,
-            price,
-          };
+          const repair = document.getElementById("repair").value;
 
           try {
             const response = await fetch(
@@ -80,24 +240,43 @@
                 headers: {
                   "Content-Type": "application/json",
                 },
-                body: JSON.stringify(requestData),
+                body: JSON.stringify({ model, price, repair }),
               }
             );
 
-            if (!response.ok) {
-              throw new Error("Network response was not ok");
-            }
+            const result = await response.json();
+            const body = JSON.parse(result.body);
+            let fileContent = body.fileContent;
 
-            const responseData = await response.json();
-            document.getElementById("response").textContent = JSON.stringify(
-              responseData,
-              null,
-              2
-            );
+            // Split the content into lines and reverse the order
+            const lines = fileContent.split("\n").reverse();
+
+            // Clear the table body
+            const tableBody = document.querySelector("#responseTable tbody");
+            tableBody.innerHTML = "";
+
+            // Populate the table
+            lines.forEach((line) => {
+              if (line.trim()) {
+                // Skip empty lines
+                const [date, model, price, repair] = line.split(",");
+                const [datePart, time24] = date.split(" ");
+                const time12 = formatTime24to12(time24); // Convert to 12-hour time
+                const row = document.createElement("tr");
+                row.innerHTML = `
+                  <td>${model}</td>
+                  <td>${repair}</td>
+                  <td>${price}</td>
+                  <td>${time12}</td>
+                  <td>${datePart}</td>
+                `;
+                tableBody.appendChild(row);
+              }
+            });
           } catch (error) {
             console.error("Error:", error);
-            document.getElementById("response").textContent =
-              "Failed to submit the request.";
+            document.querySelector("#responseTable tbody").innerHTML =
+              "<tr><td colspan='5'>Failed to fetch data</td></tr>";
           }
         });
     </script>
