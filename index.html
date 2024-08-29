@@ -22,7 +22,7 @@
           <input type="text" id="repair" name="repair" required /><br />
           <label for="price">Price:</label>
           <input type="text" id="price" name="price" required /><br />
-          <button type="submit" id="submit ">Submit</button>
+          <button type="submit" id="submit">Submit</button>
         </form>
         <div class="clear-container" style="margin-top: 50px">
           <form id="clearForm">
@@ -52,23 +52,11 @@
       </div>
     </div>
     <script>
-      // Function to format time from 24-hour to 12-hour with AM/PM
-      function formatTime24to12(time24) {
-        if (!time24) return "Invalid time"; // Handle cases where time24 is undefined or empty
-
-        const [hours, minutes] = time24.split(":");
-        if (!hours || !minutes) return "Invalid time"; // Ensure hours and minutes are present
-
-        let hours12 = parseInt(hours, 10);
-        const ampm = hours12 >= 12 ? "PM" : "AM";
-
-        if (hours12 > 12) {
-          hours12 -= 12;
-        } else if (hours12 === 0) {
-          hours12 = 12;
-        }
-
-        return `${hours12}:${minutes} ${ampm}`;
+      // Function to format time by removing seconds
+      function formatTimeWithoutSeconds(timeWithSeconds) {
+        const [hoursMinutes, ampm] = timeWithSeconds.split(" ");
+        const [hours, minutes] = hoursMinutes.split(":");
+        return `${hours}:${minutes} ${ampm}`;
       }
 
       // Function to fetch data from the API
@@ -95,7 +83,7 @@
           // Clear the table body
           const tableBody = document.querySelector("#responseTable tbody");
           tableBody.innerHTML = "";
-          console.log(lines);
+
           // Populate the table
           lines.forEach((line) => {
             if (line.trim()) {
@@ -103,17 +91,19 @@
               const [id, date, model, price, repair] = line.split(",");
               const displayId = id ? id : "***"; // Display '***' if id is missing
               if (date && model && price && repair) {
-                const [datePart, time24] = date.split(" ");
-                const time12 = formatTime24to12(time24); // Convert to 12-hour time
+                const [datePart, timeWithSeconds] = date.split(" ");
+                const formattedTime = formatTimeWithoutSeconds(
+                  `${timeWithSeconds} ${date.split(" ")[2]}`
+                ); // Remove seconds and keep AM/PM
                 const row = document.createElement("tr");
                 row.innerHTML = `
-            <td>${displayId}</td>
-            <td>${model}</td>
-            <td>${repair}</td>
-            <td>${price}</td>
-            <td>${time12}</td>
-            <td>${datePart}</td>
-          `;
+                  <td>${displayId}</td>
+                  <td>${model}</td>
+                  <td>${repair}</td>
+                  <td>${price}</td>
+                  <td>${formattedTime}</td>
+                  <td>${datePart}</td>
+                `;
                 tableBody.appendChild(row);
               }
             }
@@ -124,9 +114,6 @@
             "<tr><td colspan='6'>Failed to fetch data</td></tr>";
         }
       }
-
-      // Fetch data as soon as the page loads
-      window.onload = fetchData;
 
       // Form submission handler for adding products
       document
@@ -173,21 +160,26 @@
                 const [id, date, model, price, repair] = line.split(",");
                 const displayId = id ? id : "***"; // Display '***' if id is missing
                 if (date && model && price && repair) {
-                  const [datePart, time24] = date.split(" ");
-                  const time12 = formatTime24to12(time24); // Convert to 12-hour time
+                  const [datePart, timeWithSeconds] = date.split(" ");
+                  const formattedTime = formatTimeWithoutSeconds(
+                    `${timeWithSeconds} ${date.split(" ")[2]}`
+                  ); // Remove seconds and keep AM/PM
                   const row = document.createElement("tr");
                   row.innerHTML = `
-              <td>${displayId}</td>
-              <td>${model}</td>
-              <td>${repair}</td>
-              <td>${price}</td>
-              <td>${time12}</td>
-              <td>${datePart}</td>
-            `;
+                    <td>${displayId}</td>
+                    <td>${model}</td>
+                    <td>${repair}</td>
+                    <td>${price}</td>
+                    <td>${formattedTime}</td>
+                    <td>${datePart}</td>
+                  `;
                   tableBody.appendChild(row);
                 }
               }
             });
+
+            // Reset the form after submission
+            document.getElementById("productForm").reset();
           } catch (error) {
             console.error("Error:", error);
             document.querySelector("#responseTable tbody").innerHTML =
@@ -236,27 +228,35 @@
                 const [id, date, model, price, repair] = line.split(",");
                 const displayId = id ? id : "***"; // Display '***' if id is missing
                 if (date && model && price && repair) {
-                  const [datePart, time24] = date.split(" ");
-                  const time12 = formatTime24to12(time24); // Convert to 12-hour time
+                  const [datePart, timeWithSeconds] = date.split(" ");
+                  const formattedTime = formatTimeWithoutSeconds(
+                    `${timeWithSeconds} ${date.split(" ")[2]}`
+                  ); // Remove seconds and keep AM/PM
                   const row = document.createElement("tr");
                   row.innerHTML = `
-              <td>${displayId}</td>
-              <td>${model}</td>
-              <td>${repair}</td>
-              <td>${price}</td>
-              <td>${time12}</td>
-              <td>${datePart}</td>
-            `;
+                    <td>${displayId}</td>
+                    <td>${model}</td>
+                    <td>${repair}</td>
+                    <td>${price}</td>
+                    <td>${formattedTime}</td>
+                    <td>${datePart}</td>
+                  `;
                   tableBody.appendChild(row);
                 }
               }
             });
+
+            // Reset the form after deletion
+            document.getElementById("clearForm").reset();
           } catch (error) {
             console.error("Error:", error);
             document.querySelector("#responseTable tbody").innerHTML =
               "<tr><td colspan='6'>Failed to fetch data</td></tr>";
           }
         });
+
+      // Fetch data as soon as the page loads
+      window.onload = fetchData;
     </script>
   </body>
 </html>
