@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Login</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&family=Roboto+Mono:wght@400&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="css/styles.css" />
+    <link rel="icon" href="favicon.png" type="image/png" />
+  </head>
+  <body>
+    <h2>Login</h2>
+    <form id="loginForm">
+      <label for="username">Username:</label>
+      <input type="text" id="username" name="username" required /><br /><br />
+
+      <label for="password">Password:</label>
+      <input
+        type="password"
+        id="password"
+        name="password"
+        required
+      /><br /><br />
+
+      <button type="submit">Login</button>
+    </form>
+
+    <script>
+      document
+        .getElementById("loginForm")
+        .addEventListener("submit", function (e) {
+          e.preventDefault(); // Prevent form from submitting normally
+
+          const username = document.getElementById("username").value;
+          const password = document.getElementById("password").value;
+          console.log(username);
+          console.log(password);
+
+          // Make a request to your API to check login credentials
+          fetch("https://9j78inyh6g.execute-api.us-east-1.amazonaws.com/dev", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              type: "login",
+              username: username,
+              password: password,
+            }),
+          })
+            .then((response) => response.json())
+            .then((data) => {
+              // Parse body if it's a string
+              let body;
+              try {
+                body = JSON.parse(data.body);
+              } catch (e) {
+                console.error("Failed to parse body:", e);
+                return;
+              }
+              if (body.success) {
+                sessionStorage.setItem("isLoggedIn", true); // Store login state in sessionStorage
+                window.location.href = "index.html"; // Redirect to index.html on successful login
+              } else {
+                console.log(data);
+                alert("Invalid credentials");
+              }
+            })
+            .catch((error) => console.error("Error:", error));
+        });
+    </script>
+  </body>
+</html>

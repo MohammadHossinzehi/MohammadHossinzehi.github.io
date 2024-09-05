@@ -140,8 +140,13 @@ button {
   font-size: 1em;
   transition: background-color 0.3s ease;
 }
-
+.rTable{
+  width: 150px
+}
 .clear:hover {
   background-color: #0056b3;
   /* Darker blue on hover */
+}
+.search-container{
+  margin-top: -50px;
 }

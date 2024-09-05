@@ -15,6 +15,7 @@
     <h1>Repair Shack Quotes</h1>
     <div class="container">
       <div class="form-container">
+        <!-- Product Submission Form -->
         <form id="productForm">
           <label for="model">Model:</label>
           <input type="text" id="model" name="model" required /><br />
@@ -24,8 +25,22 @@
           <input type="text" id="price" name="price" required /><br />
           <button type="submit" id="submit">Submit</button>
         </form>
+
+        <!-- Search Form (Fixed ID Conflict) -->
+        <div class="search-container" style="margin-top: 50px">
+          <form id="searchForm">
+            <label for="modelSearch">Model to Search:</label>
+            <input type="text" id="modelSearch" name="model" required />
+            <button type="submit" class="clear">Search</button>
+            <button type="button" class="rTable" id="resetTable">
+              Reset Table
+            </button>
+          </form>
+        </div>
+
+        <!-- Delete by ID Form -->
         <div class="clear-container" style="margin-top: 50px">
-          <form id="clearForm">
+          <form id="deleteForm">
             <label for="id">ID Number to Delete:</label>
             <input type="text" id="id" name="id" required />
             <button type="submit" class="clear">Delete</button>
@@ -33,6 +48,7 @@
         </div>
       </div>
 
+      <!-- Response Table -->
       <div class="table-container">
         <table id="responseTable">
           <thead>
@@ -51,7 +67,15 @@
         </table>
       </div>
     </div>
+
     <script>
+      document.addEventListener("DOMContentLoaded", function () {
+        // Check if the user is logged in
+        const isLoggedIn = sessionStorage.getItem("isLoggedIn");
+        if (!isLoggedIn) {
+          window.location.href = "login.html"; // Redirect to login page if not logged in
+        }
+      });
       // Function to format time by removing seconds
       function formatTimeWithoutSeconds(timeWithSeconds) {
         const [hoursMinutes, ampm] = timeWithSeconds.split(" ");
@@ -77,6 +101,10 @@
           const body = JSON.parse(result.body);
           let fileContent = body.fileContent;
 
+          if (!fileContent) {
+            throw new Error("No fileContent returned from the server.");
+          }
+
           // Split the content into lines and reverse the order
           const lines = fileContent.split("\n").reverse();
 
@@ -91,9 +119,9 @@
               const [id, date, model, price, repair] = line.split(",");
               const displayId = id ? id : "***"; // Display '***' if id is missing
               if (date && model && price && repair) {
-                const [datePart, timeWithSeconds] = date.split(" ");
+                const [datePart, timeWithSeconds, ampm] = date.split(" ");
                 const formattedTime = formatTimeWithoutSeconds(
-                  `${timeWithSeconds} ${date.split(" ")[2]}`
+                  `${timeWithSeconds} ${ampm}`
                 ); // Remove seconds and keep AM/PM
                 const row = document.createElement("tr");
                 row.innerHTML = `
@@ -115,15 +143,96 @@
         }
       }
 
+      // Function to search the API by model
+      document
+        .getElementById("searchForm")
+        .addEventListener("submit", async (event) => {
+          event.preventDefault();
+
+          const model = document.getElementById("modelSearch").value.trim();
+
+          if (!model) {
+            alert("Please enter a model to search.");
+            return;
+          }
+
+          try {
+            const response = await fetch(
+              "https://9j78inyh6g.execute-api.us-east-1.amazonaws.com/dev",
+              {
+                method: "POST",
+                headers: {
+                  "Content-Type": "application/json",
+                },
+                body: JSON.stringify({ type: "search", model }), // Search by model
+              }
+            );
+
+            const result = await response.json();
+            const body = JSON.parse(result.body);
+            let fileContent = body.fileContent;
+
+            if (!fileContent) {
+              throw new Error("No fileContent returned from the server.");
+            }
+
+            // Split the content into lines and reverse the order
+            const lines = fileContent.split("\n").reverse();
+
+            // Clear the table body
+            const tableBody = document.querySelector("#responseTable tbody");
+            tableBody.innerHTML = "";
+
+            // Populate the table with matching models
+            lines.forEach((line) => {
+              if (line.trim()) {
+                const [id, date, modelName, price, repair] = line.split(",");
+                if (modelName.toLowerCase() === model.toLowerCase()) {
+                  const displayId = id ? id : "***";
+                  const [datePart, timeWithSeconds, ampm] = date.split(" ");
+                  const formattedTime = formatTimeWithoutSeconds(
+                    `${timeWithSeconds} ${ampm}`
+                  );
+                  const row = document.createElement("tr");
+                  row.innerHTML = `
+                  <td>${displayId}</td>
+                  <td>${modelName}</td>
+                  <td>${repair}</td>
+                  <td>${price}</td>
+                  <td>${formattedTime}</td>
+                  <td>${datePart}</td>
+                `;
+                  tableBody.appendChild(row);
+                }
+              }
+            });
+
+            // If no results found, display a message
+            if (tableBody.innerHTML.trim() === "") {
+              tableBody.innerHTML =
+                "<tr><td colspan='6'>No matching records found.</td></tr>";
+            }
+          } catch (error) {
+            console.error("Error:", error);
+            document.querySelector("#responseTable tbody").innerHTML =
+              "<tr><td colspan='6'>Failed to fetch data</td></tr>";
+          }
+        });
+
       // Form submission handler for adding products
       document
         .getElementById("productForm")
         .addEventListener("submit", async (event) => {
           event.preventDefault();
 
-          const model = document.getElementById("model").value;
-          const price = document.getElementById("price").value;
-          const repair = document.getElementById("repair").value;
+          const model = document.getElementById("model").value.trim();
+          const price = document.getElementById("price").value.trim();
+          const repair = document.getElementById("repair").value.trim();
+
+          if (!model || !price || !repair) {
+            alert("Please fill in all fields.");
+            return;
+          }
 
           try {
             const response = await fetch(
@@ -146,6 +255,10 @@
             const body = JSON.parse(result.body);
             let fileContent = body.fileContent;
 
+            if (!fileContent) {
+              throw new Error("No fileContent returned from the server.");
+            }
+
             // Split the content into lines and reverse the order
             const lines = fileContent.split("\n").reverse();
 
@@ -156,13 +269,12 @@
             // Populate the table
             lines.forEach((line) => {
               if (line.trim()) {
-                // Skip empty lines
                 const [id, date, model, price, repair] = line.split(",");
                 const displayId = id ? id : "***"; // Display '***' if id is missing
                 if (date && model && price && repair) {
-                  const [datePart, timeWithSeconds] = date.split(" ");
+                  const [datePart, timeWithSeconds, ampm] = date.split(" ");
                   const formattedTime = formatTimeWithoutSeconds(
-                    `${timeWithSeconds} ${date.split(" ")[2]}`
+                    `${timeWithSeconds} ${ampm}`
                   ); // Remove seconds and keep AM/PM
                   const row = document.createElement("tr");
                   row.innerHTML = `
@@ -187,13 +299,18 @@
           }
         });
 
-      // Form submission handler for clearing by ID
+      // Form submission handler for deleting data by ID
       document
-        .getElementById("clearForm")
+        .getElementById("deleteForm")
         .addEventListener("submit", async (event) => {
           event.preventDefault();
 
-          const id = document.getElementById("id").value;
+          const id = document.getElementById("id").value.trim();
+
+          if (!id) {
+            alert("Please enter an ID to delete.");
+            return;
+          }
 
           try {
             const response = await fetch(
@@ -204,7 +321,7 @@
                   "Content-Type": "application/json",
                 },
                 body: JSON.stringify({
-                  type: "deleteProduct",
+                  type: "deleteProduct", // Corrected type
                   id,
                 }), // Specify type as deleteProduct
               }
@@ -213,6 +330,10 @@
             const result = await response.json();
             const body = JSON.parse(result.body);
             let fileContent = body.fileContent;
+
+            if (!fileContent) {
+              throw new Error("No fileContent returned from the server.");
+            }
 
             // Split the content into lines and reverse the order
             const lines = fileContent.split("\n").reverse();
@@ -224,13 +345,12 @@
             // Populate the table
             lines.forEach((line) => {
               if (line.trim()) {
-                // Skip empty lines
                 const [id, date, model, price, repair] = line.split(",");
                 const displayId = id ? id : "***"; // Display '***' if id is missing
                 if (date && model && price && repair) {
-                  const [datePart, timeWithSeconds] = date.split(" ");
+                  const [datePart, timeWithSeconds, ampm] = date.split(" ");
                   const formattedTime = formatTimeWithoutSeconds(
-                    `${timeWithSeconds} ${date.split(" ")[2]}`
+                    `${timeWithSeconds} ${ampm}`
                   ); // Remove seconds and keep AM/PM
                   const row = document.createElement("tr");
                   row.innerHTML = `
@@ -246,16 +366,27 @@
               }
             });
 
+            // If no records remain, display a message
+            if (tableBody.innerHTML.trim() === "") {
+              tableBody.innerHTML =
+                "<tr><td colspan='6'>No records available.</td></tr>";
+            }
+
             // Reset the form after deletion
-            document.getElementById("clearForm").reset();
+            document.getElementById("deleteForm").reset();
           } catch (error) {
             console.error("Error:", error);
             document.querySelector("#responseTable tbody").innerHTML =
               "<tr><td colspan='6'>Failed to fetch data</td></tr>";
           }
         });
-
-      // Fetch data as soon as the page loads
+      // Event listener for resetting the table
+      document
+        .getElementById("resetTable")
+        .addEventListener("click", async () => {
+          await fetchData(); // Call fetchData to reset the table with the latest data
+        });
+      // Initial data fetch on page load
       window.onload = fetchData;
     </script>
   </body>
